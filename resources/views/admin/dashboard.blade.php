@@ -108,7 +108,3 @@
     </div>
 </div>
 @endsection
-        </div>
-    </div>
-</div>
-@endsection

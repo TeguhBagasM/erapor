@@ -110,16 +110,42 @@
             font-size: .8rem;
         }
 
+        /* ── Dropdown toggle ── */
+        .sidebar-dropdown-toggle {
+            justify-content: flex-start;
+            position: relative;
+        }
+
+        .sidebar-arrow {
+            position: absolute;
+            right: 1.25rem;
+            font-size: .55rem;
+            transition: transform .2s ease;
+            width: auto !important;
+            margin-right: 0 !important;
+        }
+
+        .sidebar-dropdown-toggle[aria-expanded="true"] .sidebar-arrow {
+            transform: rotate(180deg);
+        }
+
         .sidebar-submenu {
             list-style: none;
             padding: 0;
             margin: 0;
+            background: rgba(0,0,0,.15);
         }
 
         .sidebar-submenu .sidebar-link {
-            padding-left: 3rem;
+            padding: .45rem 1.25rem .45rem 3rem;
             font-size: .82rem;
             font-weight: 400;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-submenu .sidebar-link.active {
+            background: var(--sidebar-active);
+            border-left-color: var(--sidebar-accent);
         }
 
         /* ── Topbar ── */

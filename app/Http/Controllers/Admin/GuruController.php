@@ -31,7 +31,7 @@ class GuruController extends Controller
     {
         try {
             Guru::create($request->validated());
-            return redirect()->route('guru.index')->with('success', 'Guru berhasil ditambahkan');
+            return redirect()->route('admin.guru.index')->with('success', 'Guru berhasil ditambahkan');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menambahkan guru: ' . $e->getMessage());
         }
@@ -53,7 +53,7 @@ class GuruController extends Controller
     {
         try {
             $guru->update($request->validated());
-            return redirect()->route('guru.index')->with('success', 'Guru berhasil diubah');
+            return redirect()->route('admin.guru.index')->with('success', 'Guru berhasil diubah');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal mengubah guru: ' . $e->getMessage());
         }
@@ -63,7 +63,7 @@ class GuruController extends Controller
     {
         try {
             $guru->delete();
-            return redirect()->route('guru.index')->with('success', 'Guru berhasil dihapus');
+            return redirect()->route('admin.guru.index')->with('success', 'Guru berhasil dihapus');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menghapus guru: ' . $e->getMessage());
         }

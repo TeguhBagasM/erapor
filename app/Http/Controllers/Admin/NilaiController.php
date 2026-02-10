@@ -87,7 +87,7 @@ class NilaiController extends Controller
     public function showImportForm()
     {
         $tahunAjarans = TahunAjaran::all();
-        return view('admin.nilai.import', compact('tahunAjarans'));
+        return view('admin.import.index', compact('tahunAjarans'));
     }
 
     /**

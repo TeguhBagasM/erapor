@@ -23,6 +23,17 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $user = auth()->user();
+
+        // Redirect berdasarkan role
+        if ($user->isAdmin()) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        if ($user->hasRole('wali_kelas')) {
+            return redirect()->route('wali_kelas.dashboard');
+        }
+
         return view('home');
     }
 }
