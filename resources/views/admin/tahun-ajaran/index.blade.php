@@ -12,7 +12,7 @@
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0" id="dataTable">
                 <thead>
                     <tr>
                         <th style="width:50px">No</th>
@@ -23,9 +23,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($tahunAjarans as $i => $t)
+                    @foreach($tahunAjarans as $i => $t)
                         <tr>
-                            <td class="text-muted">{{ $tahunAjarans->firstItem() + $i }}</td>
+                            <td class="text-muted">{{ $i + 1 }}</td>
                             <td class="fw-semibold">{{ $t->tahun_ajaran }}</td>
                             <td>{{ ucfirst($t->semester) }}</td>
                             <td>
@@ -48,19 +48,22 @@
                                 </form>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center text-muted py-4">Belum ada data tahun ajaran</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
     </div>
-    @if($tahunAjarans->hasPages())
-        <div class="card-footer bg-white border-top-0 pt-0">
-            {{ $tahunAjarans->links() }}
-        </div>
-    @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    $('#dataTable').DataTable({
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/id.json' },
+        pageLength: 10,
+        columnDefs: [{ orderable: false, targets: -1 }]
+    });
+});
+</script>
+@endpush

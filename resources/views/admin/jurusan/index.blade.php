@@ -12,7 +12,7 @@
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0" id="dataTable">
                 <thead>
                     <tr>
                         <th style="width:50px">No</th>
@@ -22,12 +22,12 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($jurusans as $i => $j)
+                    @foreach($jurusans as $i => $j)
                         <tr>
-                            <td class="text-muted">{{ $jurusans->firstItem() + $i }}</td>
+                            <td class="text-muted">{{ $i + 1 }}</td>
                             <td class="fw-semibold">{{ $j->nama_jurusan }}</td>
                             <td>
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ $j->kelas_count ?? $j->kelas->count() }}</span>
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ $j->kelas_count }}</span>
                             </td>
                             <td class="text-center">
                                 <a href="{{ route('admin.jurusans.edit', $j) }}" class="btn btn-sm btn-outline-secondary py-0 px-2">
@@ -42,19 +42,22 @@
                                 </form>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="text-center text-muted py-4">Belum ada data jurusan</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
     </div>
-    @if($jurusans->hasPages())
-        <div class="card-footer bg-white border-top-0 pt-0">
-            {{ $jurusans->links() }}
-        </div>
-    @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    $('#dataTable').DataTable({
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/id.json' },
+        pageLength: 10,
+        columnDefs: [{ orderable: false, targets: -1 }]
+    });
+});
+</script>
+@endpush

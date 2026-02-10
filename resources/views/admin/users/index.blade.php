@@ -12,7 +12,7 @@
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0" id="dataTable">
                 <thead>
                     <tr>
                         <th style="width:50px">No</th>
@@ -24,9 +24,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($users as $i => $u)
+                    @foreach($users as $i => $u)
                         <tr>
-                            <td class="text-muted">{{ $users->firstItem() + $i }}</td>
+                            <td class="text-muted">{{ $i + 1 }}</td>
                             <td>{{ $u->name }}</td>
                             <td><code>{{ $u->email }}</code></td>
                             <td>
@@ -50,19 +50,22 @@
                                 @endif
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">Belum ada data user</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
     </div>
-    @if($users->hasPages())
-        <div class="card-footer bg-white border-top-0 pt-0">
-            {{ $users->links() }}
-        </div>
-    @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    $('#dataTable').DataTable({
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/id.json' },
+        pageLength: 10,
+        columnDefs: [{ orderable: false, targets: -1 }]
+    });
+});
+</script>
+@endpush

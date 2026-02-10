@@ -12,7 +12,7 @@
 <div class="card">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0" id="dataTable">
                 <thead>
                     <tr>
                         <th style="width:50px">No</th>
@@ -23,9 +23,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($guru as $i => $g)
+                    @foreach($guru as $i => $g)
                         <tr>
-                            <td class="text-muted">{{ $guru->firstItem() + $i }}</td>
+                            <td class="text-muted">{{ $i + 1 }}</td>
                             <td><code>{{ $g->nip }}</code></td>
                             <td>{{ $g->nama_guru }}</td>
                             <td>{{ $g->user->name ?? '—' }}</td>
@@ -42,19 +42,22 @@
                                 </form>
                             </td>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="text-center text-muted py-4">Belum ada data guru</td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
     </div>
-    @if($guru->hasPages())
-        <div class="card-footer bg-white border-top-0 pt-0">
-            {{ $guru->links() }}
-        </div>
-    @endif
 </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    $('#dataTable').DataTable({
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/id.json' },
+        pageLength: 10,
+        columnDefs: [{ orderable: false, targets: -1 }]
+    });
+});
+</script>
+@endpush
