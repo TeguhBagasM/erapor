@@ -18,7 +18,7 @@ class KelasController extends Controller
 
     public function index()
     {
-        $kelas = Kelas::with('jurusan', 'waliKelas')->paginate(10);
+        $kelas = Kelas::with('jurusan', 'waliKelas')->withCount('siswa')->get();
         return view('admin.kelas.index', compact('kelas'));
     }
 

@@ -23,13 +23,15 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation
         $this->rowNumber++;
 
         try {
-            // Validasi kelas ada
-            $kelas = Kelas::where('nama_kelas', $row['kelas'])->first();
+            // Validasi kelas ada (case-insensitive, trimmed)
+            $kelasNama = trim($row['kelas'] ?? '');
+            $kelas = Kelas::whereRaw('LOWER(nama_kelas) = ?', [strtolower($kelasNama)])->first();
             if (!$kelas) {
+                $available = Kelas::pluck('nama_kelas')->implode(', ');
                 $this->errors[] = [
                     'row' => $this->rowNumber,
                     'nis' => $row['nis'] ?? null,
-                    'message' => "Kelas '{$row['kelas']}' tidak ditemukan",
+                    'message' => "Kelas '{$kelasNama}' tidak ditemukan. Kelas tersedia: {$available}",
                 ];
                 return null;
             }

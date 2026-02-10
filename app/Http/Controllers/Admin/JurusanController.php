@@ -16,7 +16,7 @@ class JurusanController extends Controller
 
     public function index()
     {
-        $jurusans = Jurusan::paginate(10);
+        $jurusans = Jurusan::withCount('kelas')->get();
         return view('admin.jurusan.index', compact('jurusans'));
     }
 

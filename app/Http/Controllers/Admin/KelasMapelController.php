@@ -20,7 +20,7 @@ class KelasMapelController extends Controller
      */
     public function index()
     {
-        $kelas = Kelas::with(['jurusan', 'waliKelas', 'mataPelajarans'])->paginate(10);
+        $kelas = Kelas::with(['jurusan', 'waliKelas', 'mataPelajarans'])->get();
         return view('admin.kelas-mapel.index', compact('kelas'));
     }
 

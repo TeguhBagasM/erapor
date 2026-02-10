@@ -16,7 +16,7 @@ class MataPelajaranController extends Controller
 
     public function index()
     {
-        $mataPelajarans = MataPelajaran::paginate(10);
+        $mataPelajarans = MataPelajaran::all();
         return view('admin.mata-pelajaran.index', compact('mataPelajarans'));
     }
 
