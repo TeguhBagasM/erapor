@@ -89,7 +89,7 @@ class RaporController extends Controller
             abort(403, 'Anda tidak berhak mengakses rapor siswa ini');
         }
 
-        $data = $this->raporService->exportRaporData($siswaId, $tahunAjaranId);
+        $data = $this->raporService->generateRaporSemester($siswaId, $tahunAjaranId);
         return view('wali_kelas.rapor.view', compact('data'));
     }
 
@@ -107,9 +107,14 @@ class RaporController extends Controller
         }
 
         try {
-            $data = $this->raporService->exportRaporData($siswaId, $tahunAjaranId);
+            $data = $this->raporService->generateRaporSemester($siswaId, $tahunAjaranId);
 
-            // TODO: Implementasikan PDF generation
+            // TODO: Implementasikan PDF generation dengan mPDF atau DOMPDF
+            // Contoh dengan mPDF:
+            // $pdf = new Mpdf\Mpdf();
+            // $pdf->WriteHTML(view('rapor.template', $data)->render());
+            // return $pdf->Output('rapor.pdf', 'D');
+
             // Untuk sekarang return JSON
             return response()->json($data);
         } catch (\Exception $e) {
@@ -146,7 +151,7 @@ class RaporController extends Controller
             $validated['tahun_ajaran_id']
         );
 
-        // Calculate statistics
+        // Calculate statistics menggunakan RaporService
         $stats = [
             'total_siswa' => $siswaNilai->count(),
             'rata_rata_kelas' => 0,
@@ -155,24 +160,25 @@ class RaporController extends Controller
         ];
 
         $totalNilai = 0;
-        $totalMataPelajaran = 0;
+        $totalSiswaWithNilai = 0;
 
         foreach ($siswaNilai as $siswa) {
             $nilaiSiswa = $siswa->nilai;
             if ($nilaiSiswa->count() > 0) {
                 $rataRataSiswa = $nilaiSiswa->avg('nilai_angka');
-                if ($this->raporService->isLulus($rataRataSiswa)) {
+                // Kelulusan: rata-rata >= 70
+                if ($rataRataSiswa >= 70) {
                     $stats['siswa_lulus']++;
                 } else {
                     $stats['siswa_tidak_lulus']++;
                 }
                 $totalNilai += $rataRataSiswa;
-                $totalMataPelajaran++;
+                $totalSiswaWithNilai++;
             }
         }
 
-        if ($totalMataPelajaran > 0) {
-            $stats['rata_rata_kelas'] = round($totalNilai / $totalMataPelajaran, 2);
+        if ($totalSiswaWithNilai > 0) {
+            $stats['rata_rata_kelas'] = round($totalNilai / $totalSiswaWithNilai, 2);
         }
 
         $kelas = Kelas::with('jurusan')->find($validated['kelas_id']);

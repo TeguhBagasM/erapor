@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\SiswaController;
 use App\Http\Controllers\Admin\MataPelajaranController;
 use App\Http\Controllers\Admin\TahunAjaranController;
 use App\Http\Controllers\WaliKelas\RaporController;
+use App\Http\Controllers\WaliKelas\NilaiController as WaliKelasNilaiController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -46,6 +47,12 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
 // ===== WALI KELAS ROUTES =====
 Route::middleware(['auth', 'role:wali_kelas'])->prefix('wali-kelas')->name('wali_kelas.')->group(function () {
     Route::get('/', [RaporController::class, 'dashboard'])->name('dashboard');
+    
+    // Nilai Management
+    Route::get('nilai', [WaliKelasNilaiController::class, 'index'])->name('nilai.index');
+    Route::post('nilai/create', [WaliKelasNilaiController::class, 'create'])->name('nilai.create');
+    Route::post('nilai', [WaliKelasNilaiController::class, 'store'])->name('nilai.store');
+    Route::get('nilai/{siswaId}', [WaliKelasNilaiController::class, 'show'])->name('nilai.show');
     
     // Rapor Management
     Route::get('rapor', [RaporController::class, 'listRapor'])->name('rapor.list');

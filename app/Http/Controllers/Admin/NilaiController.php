@@ -50,20 +50,32 @@ class NilaiController extends Controller
      */
     public function store(StoreBulkNilaiRequest $request)
     {
-        $result = $this->nilaiService->storeBulkNilai($request->validated());
+        try {
+            // Validasi rentang nilai
+            foreach ($request->validated()['nilai'] as $nilaiData) {
+                $this->raporService->validateNilaiRange($nilaiData['nilai_angka']);
+            }
 
-        if ($result['success']) {
+            $result = $this->nilaiService->storeBulkNilai($request->validated());
+
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Nilai berhasil disimpan. {$result['successCount']} data berhasil, {$result['failedCount']} gagal",
+                    'data' => $result,
+                ]);
+            }
+
             return response()->json([
-                'success' => true,
-                'message' => "Nilai berhasil disimpan. {$result['successCount']} data berhasil, {$result['failedCount']} gagal",
-                'data' => $result,
-            ]);
+                'success' => false,
+                'message' => $result['message'] ?? 'Gagal menyimpan nilai',
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
         }
-
-        return response()->json([
-            'success' => false,
-            'message' => $result['message'] ?? 'Gagal menyimpan nilai',
-        ], 400);
     }
 
     /**
@@ -119,7 +131,7 @@ class NilaiController extends Controller
     public function downloadRapor($siswaId, $tahunAjaranId)
     {
         try {
-            $data = $this->raporService->exportRaporData($siswaId, $tahunAjaranId);
+            $data = $this->raporService->generateRaporSemester($siswaId, $tahunAjaranId);
 
             // TODO: Implementasikan PDF generation dengan mPDF atau DOMPDF
             // Contoh dengan mPDF:
@@ -142,7 +154,7 @@ class NilaiController extends Controller
      */
     public function viewRapor($siswaId, $tahunAjaranId)
     {
-        $data = $this->raporService->exportRaporData($siswaId, $tahunAjaranId);
+        $data = $this->raporService->generateRaporSemester($siswaId, $tahunAjaranId);
         return view('admin.rapor.view', compact('data'));
     }
 }
