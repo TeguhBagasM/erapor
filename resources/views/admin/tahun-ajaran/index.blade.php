@@ -27,7 +27,7 @@
                         <tr>
                             <td class="text-muted">{{ $tahunAjarans->firstItem() + $i }}</td>
                             <td class="fw-semibold">{{ $t->tahun_ajaran }}</td>
-                            <td>Semester {{ $t->semester }}</td>
+                            <td>{{ ucfirst($t->semester) }}</td>
                             <td>
                                 @if($t->is_active)
                                     <span class="badge bg-success">Aktif</span>

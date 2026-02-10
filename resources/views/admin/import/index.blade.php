@@ -65,7 +65,7 @@
                             <option value="">— Pilih Tahun Ajaran —</option>
                             @foreach($tahunAjarans as $t)
                                 <option value="{{ $t->id }}" {{ $t->is_active ? 'selected' : '' }}>
-                                    {{ $t->tahun_ajaran }} — Semester {{ $t->semester }}
+                                    {{ $t->tahun_ajaran }} — {{ ucfirst($t->semester) }}
                                     {{ $t->is_active ? '(Aktif)' : '' }}
                                 </option>
                             @endforeach

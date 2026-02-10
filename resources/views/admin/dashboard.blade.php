@@ -99,7 +99,7 @@
                 @php $tahunAktif = \App\Models\TahunAjaran::where('is_active', true)->first(); @endphp
                 @if($tahunAktif)
                     <h5 class="mb-1">{{ $tahunAktif->tahun_ajaran }}</h5>
-                    <span class="badge bg-success">Semester {{ $tahunAktif->semester }}</span>
+                    <span class="badge bg-success">{{ ucfirst($tahunAktif->semester) }}</span>
                 @else
                     <p class="text-muted mb-0">Belum ada tahun ajaran aktif</p>
                 @endif

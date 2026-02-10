@@ -11,6 +11,8 @@ use App\Services\RaporService;
 use App\Models\Kelas;
 use App\Models\TahunAjaran;
 use App\Models\Siswa;
+use App\Models\Nilai;
+use App\Models\MataPelajaran;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -60,6 +62,14 @@ class RaporController extends Controller
             abort(403, 'Unauthorized');
         }
 
+        $kelasList = $user->kelasAsWaliKelas()->get();
+        $tahunAjarans = TahunAjaran::all();
+
+        // Jika belum pilih tahun ajaran, tampilkan form filter
+        if (!$request->filled('tahun_ajaran_id')) {
+            return view('wali_kelas.rapor.list', compact('kelasList', 'tahunAjarans'));
+        }
+
         $validated = $request->validate([
             'tahun_ajaran_id' => ['required', 'exists:tahun_ajarans,id'],
         ]);
@@ -73,7 +83,7 @@ class RaporController extends Controller
 
         $tahunAjaran = TahunAjaran::find($validated['tahun_ajaran_id']);
 
-        return view('wali_kelas.rapor.list', compact('siswa', 'tahunAjaran'));
+        return view('wali_kelas.rapor.list', compact('siswa', 'tahunAjaran', 'kelasList', 'tahunAjarans'));
     }
 
     /**
@@ -89,40 +99,105 @@ class RaporController extends Controller
             abort(403, 'Anda tidak berhak mengakses rapor siswa ini');
         }
 
-        $data = $this->raporService->generateRaporSemester($siswaId, $tahunAjaranId);
+        $data = $this->raporService->getRaporData($siswaId, $tahunAjaranId);
         return view('wali_kelas.rapor.view', compact('data'));
     }
 
     /**
-     * Download rapor PDF
+     * Cetak rapor 1 siswa — semua mapel di kelasnya
      */
     public function downloadRapor($siswaId, $tahunAjaranId)
     {
         $user = Auth::user();
-        $siswa = Siswa::findOrFail($siswaId);
+        $siswa = Siswa::with('kelas.jurusan')->findOrFail($siswaId);
 
-        // Check authorization
         if (!$user->kelasAsWaliKelas()->whereId($siswa->kelas_id)->exists()) {
             abort(403, 'Unauthorized');
         }
 
         try {
-            $data = $this->raporService->generateRaporSemester($siswaId, $tahunAjaranId);
+            $kelas = $siswa->kelas;
+            $tahunAjaran = TahunAjaran::findOrFail($tahunAjaranId);
 
-            // TODO: Implementasikan PDF generation dengan mPDF atau DOMPDF
-            // Contoh dengan mPDF:
-            // $pdf = new Mpdf\Mpdf();
-            // $pdf->WriteHTML(view('rapor.template', $data)->render());
-            // return $pdf->Output('rapor.pdf', 'D');
+            // Ambil mapel yang terdaftar di kelas ini dari pivot
+            $mapels = $kelas->mataPelajarans()->orderBy('nama_mapel')->get();
 
-            // Untuk sekarang return JSON
-            return response()->json($data);
+            // Jika belum ada di pivot, fallback ke mapel yang sudah ada nilainya
+            if ($mapels->isEmpty()) {
+                $mapelIds = Nilai::where('tahun_ajaran_id', $tahunAjaranId)
+                    ->whereIn('siswa_id', $kelas->siswa()->pluck('id'))
+                    ->distinct()
+                    ->pluck('mata_pelajaran_id');
+                $mapels = MataPelajaran::whereIn('id', $mapelIds)->orderBy('nama_mapel')->get();
+            }
+
+            // Ambil semua nilai siswa ini
+            $nilaiSiswa = Nilai::where('siswa_id', $siswaId)
+                ->where('tahun_ajaran_id', $tahunAjaranId)
+                ->with(['mataPelajaran', 'guru'])
+                ->get()
+                ->keyBy('mata_pelajaran_id');
+
+            $waliKelas = $user;
+
+            return view('wali_kelas.rapor.cetak', compact(
+                'siswa', 'kelas', 'tahunAjaran', 'mapels', 'nilaiSiswa', 'waliKelas'
+            ));
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => $e->getMessage(),
-            ], 404);
+            return back()->with('error', 'Gagal mencetak rapor: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Cetak rapor 1 kelas — semua siswa, masing-masing 1 halaman
+     */
+    public function cetakKelas(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'kelas_id' => ['required', 'exists:kelas,id'],
+            'tahun_ajaran_id' => ['required', 'exists:tahun_ajarans,id'],
+        ], [
+            'kelas_id.required' => 'Kelas harus dipilih',
+            'tahun_ajaran_id.required' => 'Tahun ajaran harus dipilih',
+        ]);
+
+        $kelas = Kelas::with(['jurusan', 'waliKelas', 'siswa' => function ($q) {
+            $q->orderBy('nama_siswa');
+        }])->findOrFail($validated['kelas_id']);
+
+        if (!$user->kelasAsWaliKelas()->whereId($kelas->id)->exists()) {
+            abort(403, 'Anda bukan wali kelas untuk kelas ini');
+        }
+
+        $tahunAjaran = TahunAjaran::findOrFail($validated['tahun_ajaran_id']);
+
+        // Ambil mapel dari pivot
+        $mapels = $kelas->mataPelajarans()->orderBy('nama_mapel')->get();
+
+        // Fallback jika pivot kosong
+        if ($mapels->isEmpty()) {
+            $mapelIds = Nilai::where('tahun_ajaran_id', $tahunAjaran->id)
+                ->whereIn('siswa_id', $kelas->siswa->pluck('id'))
+                ->distinct()
+                ->pluck('mata_pelajaran_id');
+            $mapels = MataPelajaran::whereIn('id', $mapelIds)->orderBy('nama_mapel')->get();
+        }
+
+        // Ambil semua nilai untuk kelas ini
+        $allNilai = Nilai::where('tahun_ajaran_id', $tahunAjaran->id)
+            ->whereIn('siswa_id', $kelas->siswa->pluck('id'))
+            ->with(['mataPelajaran', 'guru'])
+            ->get()
+            ->groupBy('siswa_id');
+
+        $siswaList = $kelas->siswa;
+        $waliKelas = $user;
+
+        return view('wali_kelas.rapor.cetak_kelas', compact(
+            'kelas', 'tahunAjaran', 'mapels', 'siswaList', 'allNilai', 'waliKelas'
+        ));
     }
 
     /**
@@ -134,6 +209,14 @@ class RaporController extends Controller
 
         if (!$user->hasRole('wali_kelas')) {
             abort(403, 'Unauthorized');
+        }
+
+        $kelasList = $user->kelasAsWaliKelas()->get();
+        $tahunAjarans = TahunAjaran::where('is_active', true)->get();
+
+        // Jika belum pilih filter, tampilkan form filter
+        if (!$request->filled('kelas_id') || !$request->filled('tahun_ajaran_id')) {
+            return view('wali_kelas.statistik', compact('kelasList', 'tahunAjarans'));
         }
 
         $validated = $request->validate([
@@ -184,6 +267,6 @@ class RaporController extends Controller
         $kelas = Kelas::with('jurusan')->find($validated['kelas_id']);
         $tahunAjaran = TahunAjaran::find($validated['tahun_ajaran_id']);
 
-        return view('wali_kelas.statistik', compact('stats', 'kelas', 'tahunAjaran', 'siswaNilai'));
+        return view('wali_kelas.statistik', compact('stats', 'kelas', 'tahunAjaran', 'siswaNilai', 'kelasList', 'tahunAjarans'));
     }
 }

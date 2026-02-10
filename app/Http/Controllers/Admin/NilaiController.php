@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreBulkNilaiRequest;
+use App\Http\Requests\StoreGridNilaiRequest;
 use App\Http\Requests\ImportExcelRequest;
 use App\Services\NilaiService;
 use App\Services\ImportService;
@@ -60,6 +61,34 @@ class NilaiController extends Controller
             }
 
             $result = $this->nilaiService->storeBulkNilai($request->validated());
+
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'message' => "Nilai berhasil disimpan. {$result['successCount']} data berhasil, {$result['failedCount']} gagal",
+                    'data' => $result,
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'] ?? 'Gagal menyimpan nilai',
+            ], 400);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Store grid nilai (multi mapel per siswa)
+     */
+    public function storeGrid(StoreGridNilaiRequest $request)
+    {
+        try {
+            $result = $this->nilaiService->storeGridNilai($request->validated());
 
             if ($result['success']) {
                 return response()->json([

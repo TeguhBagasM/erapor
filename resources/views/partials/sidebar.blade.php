@@ -19,7 +19,7 @@
             </li>
 
             {{-- Dropdown: Master Data --}}
-            @php $masterOpen = request()->routeIs('admin.users.*','admin.guru.*','admin.siswa.*','admin.kelas.*','admin.jurusans.*','admin.mata-pelajaran.*','admin.tahun-ajaran.*'); @endphp
+            @php $masterOpen = request()->routeIs('admin.users.*','admin.guru.*','admin.siswa.*','admin.kelas.*','admin.jurusans.*','admin.mata-pelajaran.*','admin.tahun-ajaran.*','admin.kelas-mapel.*'); @endphp
             <li class="sidebar-item">
                 <a href="#masterDataMenu" class="sidebar-link sidebar-dropdown-toggle {{ $masterOpen ? 'active' : '' }}"
                    data-bs-toggle="collapse" aria-expanded="{{ $masterOpen ? 'true' : 'false' }}">
@@ -34,6 +34,7 @@
                     <li><a href="{{ route('admin.jurusans.index') }}" class="sidebar-link {{ request()->routeIs('admin.jurusans.*') ? 'active' : '' }}"><i class="fas fa-layer-group"></i> Jurusan</a></li>
                     <li><a href="{{ route('admin.mata-pelajaran.index') }}" class="sidebar-link {{ request()->routeIs('admin.mata-pelajaran.*') ? 'active' : '' }}"><i class="fas fa-book"></i> Mata Pelajaran</a></li>
                     <li><a href="{{ route('admin.tahun-ajaran.index') }}" class="sidebar-link {{ request()->routeIs('admin.tahun-ajaran.*') ? 'active' : '' }}"><i class="fas fa-calendar-alt"></i> Tahun Ajaran</a></li>
+                    <li><a href="{{ route('admin.kelas-mapel.index') }}" class="sidebar-link {{ request()->routeIs('admin.kelas-mapel.*') ? 'active' : '' }}"><i class="fas fa-th-list"></i> Mapel per Kelas</a></li>
                 </ul>
             </li>
 
@@ -71,7 +72,7 @@
                 </a>
                 <ul class="sidebar-submenu collapse {{ $wkAkademikOpen ? 'show' : '' }}" id="wkAkademikMenu">
                     <li><a href="{{ route('wali_kelas.nilai.index') }}" class="sidebar-link {{ request()->routeIs('wali_kelas.nilai.*') ? 'active' : '' }}"><i class="fas fa-pen-alt"></i> Input Nilai</a></li>
-                    <li><a href="{{ route('wali_kelas.rapor.list') }}" class="sidebar-link {{ request()->routeIs('wali_kelas.rapor.*') ? 'active' : '' }}"><i class="fas fa-file-alt"></i> Rekap Nilai</a></li>
+                    <li><a href="{{ route('wali_kelas.rapor.list') }}" class="sidebar-link {{ request()->routeIs('wali_kelas.rapor.*') ? 'active' : '' }}"><i class="fas fa-file-alt"></i> Rekap & Cetak Rapor</a></li>
                     <li><a href="{{ route('wali_kelas.statistik') }}" class="sidebar-link {{ request()->routeIs('wali_kelas.statistik') ? 'active' : '' }}"><i class="fas fa-chart-bar"></i> Statistik Kelas</a></li>
                 </ul>
             </li>

@@ -1,0 +1,61 @@
+@extends('layouts.app')
+@section('title', 'Pengaturan Mapel per Kelas')
+
+@section('content')
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1 class="page-title">Mata Pelajaran per Kelas</h1>
+        <p class="text-muted mb-0" style="font-size:.82rem;">Atur mata pelajaran dan guru pengajar untuk setiap kelas</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:50px">No</th>
+                        <th>Kelas</th>
+                        <th>Jurusan</th>
+                        <th>Wali Kelas</th>
+                        <th class="text-center" style="width:120px">Jml Mapel</th>
+                        <th style="width:100px" class="text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($kelas as $i => $k)
+                        <tr>
+                            <td class="text-muted">{{ $kelas->firstItem() + $i }}</td>
+                            <td class="fw-semibold">{{ $k->nama_kelas }}</td>
+                            <td>{{ $k->jurusan->nama_jurusan ?? '-' }}</td>
+                            <td>{{ $k->waliKelas->name ?? '—' }}</td>
+                            <td class="text-center">
+                                <span class="badge bg-{{ $k->mataPelajarans->count() > 0 ? 'primary' : 'secondary' }}">
+                                    {{ $k->mataPelajarans->count() }} mapel
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <a href="{{ route('admin.kelas-mapel.edit', $k) }}"
+                                   class="btn btn-sm btn-outline-primary py-0 px-2" title="Atur Mapel">
+                                    <i class="fas fa-cog" style="font-size:.7rem;"></i>
+                                    <span style="font-size:.78rem;">Atur</span>
+                                </a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">Belum ada data kelas</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if($kelas->hasPages())
+        <div class="card-footer bg-white border-top-0 pt-0">
+            {{ $kelas->links() }}
+        </div>
+    @endif
+</div>
+@endsection

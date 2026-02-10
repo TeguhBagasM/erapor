@@ -60,7 +60,7 @@
                 <i class="fas fa-calendar-alt text-muted me-2"></i>
                 <span style="font-size:.85rem;">
                     <strong>Tahun Ajaran Aktif:</strong>
-                    {{ $aktif->tahun_ajaran }} — Semester {{ $aktif->semester }}
+                    {{ $aktif->tahun_ajaran }} — {{ ucfirst($aktif->semester) }}
                 </span>
             </div>
         </div>

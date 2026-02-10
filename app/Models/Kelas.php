@@ -26,4 +26,11 @@ class Kelas extends Model
     {
         return $this->hasMany(Siswa::class);
     }
+
+    public function mataPelajarans()
+    {
+        return $this->belongsToMany(MataPelajaran::class, 'kelas_mata_pelajaran')
+                    ->withPivot('guru_id')
+                    ->withTimestamps();
+    }
 }

@@ -21,4 +21,9 @@ class Guru extends Model
     {
         return $this->hasMany(Nilai::class);
     }
+
+    public function kelasMataPelajarans()
+    {
+        return $this->hasMany(\Illuminate\Database\Eloquent\Relations\Pivot::class);
+    }
 }

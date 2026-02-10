@@ -35,7 +35,7 @@ class NilaiService
                         ],
                         [
                             'nilai_angka' => $nilaiData['nilai_angka'],
-                            'nilai_huruf' => $nilaiData['nilai_huruf'],
+                            'nilai_huruf' => $this->getNilaiHuruf($nilaiData['nilai_angka']),
                         ]
                     );
 
@@ -46,6 +46,56 @@ class NilaiService
                         'row' => $index + 1,
                         'message' => $e->getMessage(),
                     ];
+                }
+            }
+
+            DB::commit();
+
+            return [
+                'success' => true,
+                'successCount' => $successCount,
+                'failedCount' => $failedCount,
+                'errors' => $errors,
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return [
+                'success' => false,
+                'message' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Store bulk nilai from grid (multi mapel per siswa)
+     */
+    public function storeGridNilai(array $data): array
+    {
+        try {
+            DB::beginTransaction();
+
+            $successCount = 0;
+            $failedCount = 0;
+            $errors = [];
+
+            foreach ($data['nilai'] as $index => $item) {
+                try {
+                    Nilai::updateOrCreate(
+                        [
+                            'siswa_id' => $item['siswa_id'],
+                            'mata_pelajaran_id' => $item['mata_pelajaran_id'],
+                            'tahun_ajaran_id' => $data['tahun_ajaran_id'],
+                            'guru_id' => $item['guru_id'],
+                        ],
+                        [
+                            'nilai_angka' => $item['nilai_angka'],
+                            'nilai_huruf' => $this->getNilaiHuruf($item['nilai_angka']),
+                        ]
+                    );
+                    $successCount++;
+                } catch (\Exception $e) {
+                    $failedCount++;
+                    $errors[] = ['row' => $index + 1, 'message' => $e->getMessage()];
                 }
             }
 

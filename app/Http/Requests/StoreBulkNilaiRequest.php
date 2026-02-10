@@ -26,7 +26,6 @@ class StoreBulkNilaiRequest extends FormRequest
             'nilai' => ['required', 'array', 'min:1'],
             'nilai.*.siswa_id' => ['required', 'exists:siswa,id'],
             'nilai.*.nilai_angka' => ['required', 'numeric', 'min:0', 'max:100'],
-            'nilai.*.nilai_huruf' => ['required', 'in:A,B,C,D,E'],
         ];
     }
 
@@ -48,8 +47,6 @@ class StoreBulkNilaiRequest extends FormRequest
             'nilai.*.nilai_angka.numeric' => 'Nilai angka harus berupa angka',
             'nilai.*.nilai_angka.min' => 'Nilai angka minimal 0',
             'nilai.*.nilai_angka.max' => 'Nilai angka maksimal 100',
-            'nilai.*.nilai_huruf.required' => 'Nilai huruf harus dipilih',
-            'nilai.*.nilai_huruf.in' => 'Nilai huruf harus A, B, C, D, atau E',
         ];
     }
 }

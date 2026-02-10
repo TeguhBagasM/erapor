@@ -3,18 +3,58 @@
 
 @section('content')
 <div class="mb-3">
-    <a href="{{ route('wali_kelas.dashboard') }}" class="text-decoration-none" style="font-size:.85rem;">
-        <i class="fas fa-arrow-left me-1"></i>Kembali ke Dashboard
-    </a>
+    <h1 class="page-title">Statistik Kelas</h1>
+    <p class="text-muted mb-0" style="font-size:.82rem;">Pilih kelas dan tahun ajaran untuk melihat statistik</p>
 </div>
 
-<div class="mb-3">
-    <h1 class="page-title">Statistik Kelas</h1>
-    <p class="text-muted mb-0" style="font-size:.82rem;">
-        {{ $kelas->nama_kelas }} ({{ $kelas->jurusan->nama_jurusan ?? '-' }}) &bull;
-        {{ $tahunAjaran->tahun_ajaran }} Smt {{ $tahunAjaran->semester }}
-    </p>
+{{-- Filter --}}
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fas fa-filter me-2 text-muted"></i>Filter
+    </div>
+    <div class="card-body">
+        <form action="{{ route('wali_kelas.statistik') }}" method="GET">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label" style="font-size:.85rem;font-weight:600;">Kelas <span class="text-danger">*</span></label>
+                    <select name="kelas_id" class="form-select form-select-sm" required>
+                        <option value="">— Pilih Kelas —</option>
+                        @foreach($kelasList as $k)
+                            <option value="{{ $k->id }}" {{ request('kelas_id') == $k->id ? 'selected' : '' }}>
+                                {{ $k->nama_kelas }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label" style="font-size:.85rem;font-weight:600;">Tahun Ajaran <span class="text-danger">*</span></label>
+                    <select name="tahun_ajaran_id" class="form-select form-select-sm" required>
+                        <option value="">— Pilih Tahun Ajaran —</option>
+                        @foreach($tahunAjarans as $t)
+                            <option value="{{ $t->id }}" {{ request('tahun_ajaran_id') == $t->id ? 'selected' : '' }}>
+                                {{ $t->tahun_ajaran }} — {{ ucfirst($t->semester) }}
+                                {{ $t->is_active ? '(Aktif)' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fas fa-search me-1"></i>Tampilkan
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
+
+@if(isset($stats) && isset($kelas) && isset($tahunAjaran))
+{{-- Info --}}
+<p class="text-muted mb-3" style="font-size:.82rem;">
+    <i class="fas fa-info-circle me-1"></i>
+    {{ $kelas->nama_kelas }} ({{ $kelas->jurusan->nama_jurusan ?? '-' }}) &bull;
+    {{ $tahunAjaran->tahun_ajaran }} {{ ucfirst($tahunAjaran->semester) }}
+</p>
 
 {{-- Stat Cards --}}
 <div class="row g-3 mb-4">
@@ -127,4 +167,5 @@
         </div>
     </div>
 </div>
+@endif
 @endsection

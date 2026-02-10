@@ -14,14 +14,20 @@
         <p class="text-muted mb-0" style="font-size:.82rem;">
             {{ $data['siswa']->nama_siswa ?? '' }} &bull;
             {{ $data['siswa']->kelas->nama_kelas ?? '' }} &bull;
-            {{ $data['tahun_ajaran']->tahun_ajaran ?? '' }} Smt {{ $data['tahun_ajaran']->semester ?? '' }}
+            {{ $data['tahun_ajaran']->tahun_ajaran ?? '' }} {{ ucfirst($data['tahun_ajaran']->semester ?? '') }}
         </p>
     </div>
     @if(isset($data['siswa']) && isset($data['tahun_ajaran']))
-        <a href="{{ route('wali_kelas.rapor.download', [$data['siswa']->id, $data['tahun_ajaran']->id]) }}"
-           class="btn btn-sm btn-outline-primary">
-            <i class="fas fa-download me-1"></i>Download
-        </a>
+        <div class="d-flex gap-2">
+            <a href="{{ route('wali_kelas.rapor.download', [$data['siswa']->id, $data['tahun_ajaran']->id]) }}"
+               class="btn btn-sm btn-outline-success" target="_blank">
+                <i class="fas fa-print me-1"></i>Cetak Rapor
+            </a>
+            <a href="{{ route('wali_kelas.rapor.download', [$data['siswa']->id, $data['tahun_ajaran']->id]) }}"
+               class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-download me-1"></i>Download
+            </a>
+        </div>
     @endif
 </div>
 
@@ -44,7 +50,7 @@
             <div class="col-md-3">
                 <small class="text-muted d-block" style="font-size:.78rem;">Tahun Ajaran</small>
                 <span style="font-size:.85rem;">
-                    {{ $data['tahun_ajaran']->tahun_ajaran ?? '-' }} — Smt {{ $data['tahun_ajaran']->semester ?? '-' }}
+                    {{ $data['tahun_ajaran']->tahun_ajaran ?? '-' }} — {{ ucfirst($data['tahun_ajaran']->semester ?? '-') }}
                 </span>
             </div>
         </div>

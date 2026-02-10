@@ -16,4 +16,11 @@ class MataPelajaran extends Model
     {
         return $this->hasMany(Nilai::class, 'mata_pelajaran_id');
     }
+
+    public function kelas()
+    {
+        return $this->belongsToMany(Kelas::class, 'kelas_mata_pelajaran')
+                    ->withPivot('guru_id')
+                    ->withTimestamps();
+    }
 }
