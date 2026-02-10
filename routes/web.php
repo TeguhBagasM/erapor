@@ -40,8 +40,15 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(f
     // Nilai Management
     Route::get('nilai/create', [NilaiController::class, 'create'])->name('nilai.create');
     Route::post('nilai', [NilaiController::class, 'store'])->name('nilai.store');
-    Route::get('nilai/import', [NilaiController::class, 'showImportForm'])->name('nilai.import-form');
-    Route::post('nilai/import', [NilaiController::class, 'import'])->name('nilai.import');
+    
+    // Import Management
+    Route::get('import', [NilaiController::class, 'showImportForm'])->name('import.form');
+    Route::post('import/siswa', [NilaiController::class, 'import'])->name('import.siswa');
+    Route::post('import/nilai', [NilaiController::class, 'import'])->name('import.nilai');
+    
+    // Template Downloads
+    Route::get('template/siswa', [NilaiController::class, 'downloadTemplateSiswa'])->name('template.siswa');
+    Route::get('template/nilai', [NilaiController::class, 'downloadTemplateNilai'])->name('template.nilai');
 });
 
 // ===== WALI KELAS ROUTES =====

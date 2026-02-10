@@ -8,11 +8,14 @@ use App\Http\Requests\ImportExcelRequest;
 use App\Services\NilaiService;
 use App\Services\ImportService;
 use App\Services\RaporService;
+use App\Exports\SiswaTemplate;
+use App\Exports\NilaiTemplate;
 use App\Models\Kelas;
 use App\Models\TahunAjaran;
 use App\Models\MataPelajaran;
 use App\Models\Guru;
 use App\Models\Siswa;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Http\Request;
 
 class NilaiController extends Controller
@@ -93,17 +96,50 @@ class NilaiController extends Controller
     public function import(ImportExcelRequest $request)
     {
         try {
-            $importLog = $this->importService->processImport(
-                $request->file('file'),
-                $request->tipe_import,
-                $request->tahun_ajaran_id
-            );
+            $tipeImport = $request->tipe_import;
 
-            return redirect()->back()->with('success', "Import berhasil! {$importLog->success_rows} data berhasil diproses.");
+            if ($tipeImport === 'siswa') {
+                $result = $this->importService->importSiswa($request->file('file'));
+            } elseif ($tipeImport === 'nilai') {
+                $guru = auth()->user()->guru;
+                if (!$guru) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Admin belum terdaftar sebagai guru',
+                    ], 400);
+                }
+
+                $result = $this->importService->importNilai(
+                    $request->file('file'),
+                    $guru->id,
+                    $request->tahun_ajaran_id
+                );
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Tipe import tidak dikenal',
+                ], 400);
+            }
+
+            if ($result['success']) {
+                return response()->json([
+                    'success' => true,
+                    'message' => $result['message'],
+                    'success_count' => $result['success_count'],
+                    'errors' => $result['errors'],
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $result['message'],
+                'errors' => $result['errors'] ?? [],
+            ], 400);
         } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal melakukan import: ' . $e->getMessage())
-                ->withInput();
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal melakukan import: ' . $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -156,5 +192,21 @@ class NilaiController extends Controller
     {
         $data = $this->raporService->generateRaporSemester($siswaId, $tahunAjaranId);
         return view('admin.rapor.view', compact('data'));
+    }
+
+    /**
+     * Download template siswa
+     */
+    public function downloadTemplateSiswa()
+    {
+        return Excel::download(new SiswaTemplate(), 'template_siswa.xlsx');
+    }
+
+    /**
+     * Download template nilai
+     */
+    public function downloadTemplateNilai()
+    {
+        return Excel::download(new NilaiTemplate(), 'template_nilai.xlsx');
     }
 }
