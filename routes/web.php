@@ -3,6 +3,12 @@
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\NilaiController;
+use App\Http\Controllers\Admin\JurusanController;
+use App\Http\Controllers\Admin\KelasController;
+use App\Http\Controllers\Admin\GuruController;
+use App\Http\Controllers\Admin\SiswaController;
+use App\Http\Controllers\Admin\MataPelajaranController;
+use App\Http\Controllers\Admin\TahunAjaranController;
 use App\Http\Controllers\WaliKelas\RaporController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -16,12 +22,19 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 // ===== ADMIN ROUTES =====
-// Akses master data, user management, dan semua fitur
-Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
-    Route::get('/', [AdminController::class, 'index'])->name('admin.dashboard');
+Route::middleware(['auth', 'isAdmin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminController::class, 'index'])->name('dashboard');
     
     // User Management
     Route::resource('users', UserController::class);
+    
+    // Master Data CRUD
+    Route::resource('jurusans', JurusanController::class);
+    Route::resource('kelas', KelasController::class);
+    Route::resource('guru', GuruController::class);
+    Route::resource('siswa', SiswaController::class);
+    Route::resource('mata-pelajaran', MataPelajaranController::class);
+    Route::resource('tahun-ajaran', TahunAjaranController::class);
     
     // Nilai Management
     Route::get('nilai/create', [NilaiController::class, 'create'])->name('nilai.create');
@@ -31,21 +44,19 @@ Route::middleware(['auth', 'isAdmin'])->prefix('admin')->group(function () {
 });
 
 // ===== WALI KELAS ROUTES =====
-// Akses input nilai dan rapor untuk kelas mereka saja
-Route::middleware(['auth', 'role:wali_kelas'])->prefix('wali-kelas')->group(function () {
-    Route::get('/', [RaporController::class, 'dashboard'])->name('wali_kelas.dashboard');
+Route::middleware(['auth', 'role:wali_kelas'])->prefix('wali-kelas')->name('wali_kelas.')->group(function () {
+    Route::get('/', [RaporController::class, 'dashboard'])->name('dashboard');
     
     // Rapor Management
-    Route::get('rapor', [RaporController::class, 'listRapor'])->name('wali_kelas.rapor.list');
-    Route::get('rapor/{siswaId}/{tahunAjaranId}', [RaporController::class, 'viewRapor'])->name('wali_kelas.rapor.view');
-    Route::get('rapor/{siswaId}/{tahunAjaranId}/download', [RaporController::class, 'downloadRapor'])->name('wali_kelas.rapor.download');
+    Route::get('rapor', [RaporController::class, 'listRapor'])->name('rapor.list');
+    Route::get('rapor/{siswaId}/{tahunAjaranId}', [RaporController::class, 'viewRapor'])->name('rapor.view');
+    Route::get('rapor/{siswaId}/{tahunAjaranId}/download', [RaporController::class, 'downloadRapor'])->name('rapor.download');
     
     // Statistik Kelas
-    Route::get('statistik', [RaporController::class, 'statistikKelas'])->name('wali_kelas.statistik');
+    Route::get('statistik', [RaporController::class, 'statistikKelas'])->name('statistik');
 });
 
 // ===== USER ROUTES =====
-// Authenticated users
 Route::middleware(['auth'])->group(function () {
     // Tambahkan route user lainnya di sini
 });
