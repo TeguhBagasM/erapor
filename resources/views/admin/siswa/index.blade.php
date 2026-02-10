@@ -5,9 +5,6 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1 class="page-title">Data Siswa</h1>
     <div class="d-flex gap-2">
-        <a href="{{ route('admin.template.siswa') }}" class="btn btn-sm btn-outline-secondary">
-            <i class="fas fa-download me-1"></i>Template Excel
-        </a>
         <a href="{{ route('admin.siswa.create') }}" class="btn btn-sm btn-primary">
             <i class="fas fa-plus me-1"></i>Tambah Siswa
         </a>

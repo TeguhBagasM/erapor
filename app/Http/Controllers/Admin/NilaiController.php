@@ -130,17 +130,8 @@ class NilaiController extends Controller
             if ($tipeImport === 'siswa') {
                 $result = $this->importService->importSiswa($request->file('file'));
             } elseif ($tipeImport === 'nilai') {
-                $guru = auth()->user()->guru;
-                if (!$guru) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Admin belum terdaftar sebagai guru',
-                    ], 400);
-                }
-
                 $result = $this->importService->importNilai(
                     $request->file('file'),
-                    $guru->id,
                     $request->tahun_ajaran_id
                 );
             } else {

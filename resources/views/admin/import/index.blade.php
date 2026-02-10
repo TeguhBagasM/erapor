@@ -107,7 +107,99 @@
             <li><strong>Import Nilai:</strong> NIS siswa dan kode mata pelajaran harus sudah terdaftar</li>
             <li>Nilai huruf akan dihitung otomatis dari nilai angka (A ≥ 85, B ≥ 70, C ≥ 60, D ≥ 50, E &lt; 50)</li>
             <li>Data yang sudah ada akan di-update, bukan duplikasi</li>
+            <li><strong>Import Nilai:</strong> Guru otomatis diambil dari pengaturan mapel per kelas</li>
         </ul>
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+$(document).ready(function() {
+    function handleImportForm(formId) {
+        $(formId).on('submit', function(e) {
+            e.preventDefault();
+            var form = $(this);
+            var card = form.closest('.card');
+            var formData = new FormData(this);
+            var btn = form.find('button[type="submit"]');
+            var originalHtml = btn.html();
+
+            // Hapus hasil sebelumnya
+            card.find('.import-result').remove();
+
+            // Loading state
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Mengimport...');
+
+            $.ajax({
+                url: form.attr('action'),
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                success: function(response) {
+                    var html = '<div class="alert alert-success mt-3 import-result" style="font-size:.82rem;">';
+                    html += '<i class="fas fa-check-circle me-1"></i><strong>' + response.message + '</strong>';
+                    if (response.success_count) {
+                        html += '<br><small>' + response.success_count + ' data berhasil diproses</small>';
+                    }
+                    if (response.errors && response.errors.length > 0) {
+                        html += '<hr class="my-2"><strong>Peringatan per baris:</strong><ul class="mb-0 mt-1">';
+                        response.errors.forEach(function(err) {
+                            html += '<li>Baris ' + err.row;
+                            if (err.nis) html += ' (NIS: ' + err.nis + ')';
+                            html += ': ' + err.message + '</li>';
+                        });
+                        html += '</ul>';
+                    }
+                    html += '</div>';
+                    form.after(html);
+                    form.find('input[type="file"]').val('');
+                },
+                error: function(xhr) {
+                    var response = xhr.responseJSON || {};
+                    var html = '<div class="alert alert-danger mt-3 import-result" style="font-size:.82rem;">';
+
+                    // Handle 422: Laravel validation errors ({message, errors: {field: [msgs]}})
+                    if (xhr.status === 422 && response.errors && !Array.isArray(response.errors)) {
+                        html += '<i class="fas fa-exclamation-circle me-1"></i><strong>Validasi gagal</strong>';
+                        html += '<ul class="mb-0 mt-2">';
+                        Object.keys(response.errors).forEach(function(field) {
+                            response.errors[field].forEach(function(msg) {
+                                html += '<li>' + msg + '</li>';
+                            });
+                        });
+                        html += '</ul>';
+                    }
+                    // Handle 400: import logic errors ({message, errors: [{row, message}]})
+                    else {
+                        html += '<i class="fas fa-exclamation-circle me-1"></i><strong>' + (response.message || 'Terjadi kesalahan saat import') + '</strong>';
+                        if (response.errors && response.errors.length > 0) {
+                            html += '<ul class="mb-0 mt-2">';
+                            response.errors.forEach(function(err) {
+                                if (typeof err === 'object') {
+                                    html += '<li>Baris ' + (err.row || '?') + ': ' + err.message + '</li>';
+                                } else {
+                                    html += '<li>' + err + '</li>';
+                                }
+                            });
+                            html += '</ul>';
+                        }
+                    }
+
+                    html += '</div>';
+                    form.after(html);
+                },
+                complete: function() {
+                    btn.prop('disabled', false).html(originalHtml);
+                }
+            });
+        });
+    }
+
+    handleImportForm('#formImportSiswa');
+    handleImportForm('#formImportNilai');
+});
+</script>
+@endpush

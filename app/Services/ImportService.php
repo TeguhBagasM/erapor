@@ -49,13 +49,14 @@ class ImportService
 
     /**
      * Import nilai dari Excel file
+     * guru_id otomatis dari pivot kelas_mata_pelajaran
      */
-    public function importNilai($file, int $guruId, int $tahunAjaranId): array
+    public function importNilai($file, int $tahunAjaranId): array
     {
         try {
             DB::beginTransaction();
 
-            $import = new NilaiImport($guruId, $tahunAjaranId, $this->raporService);
+            $import = new NilaiImport($tahunAjaranId, $this->raporService);
             Excel::import($import, $file);
 
             DB::commit();
@@ -81,18 +82,18 @@ class ImportService
     /**
      * Process import file (legacy method)
      */
-    public function processImport($file, string $tipeImport, ?int $tahunAjaranId = null, ?int $guruId = null)
+    public function processImport($file, string $tipeImport, ?int $tahunAjaranId = null)
     {
         if ($tipeImport === 'siswa') {
             return $this->importSiswa($file);
         } elseif ($tipeImport === 'nilai') {
-            if (!$guruId || !$tahunAjaranId) {
+            if (!$tahunAjaranId) {
                 return [
                     'success' => false,
-                    'message' => 'guruId dan tahunAjaranId diperlukan untuk import nilai',
+                    'message' => 'tahunAjaranId diperlukan untuk import nilai',
                 ];
             }
-            return $this->importNilai($file, $guruId, $tahunAjaranId);
+            return $this->importNilai($file, $tahunAjaranId);
         }
 
         return [

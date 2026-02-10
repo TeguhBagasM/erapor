@@ -6,14 +6,21 @@ use App\Models\Siswa;
 use App\Models\Kelas;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Maatwebsite\Excel\Concerns\WithValidation;
-use Illuminate\Validation\Rule;
+use Maatwebsite\Excel\Concerns\SkipsUnknownSheets;
 
-class SiswaImport implements ToModel, WithHeadingRow, WithValidation
+class SiswaImport implements ToModel, WithHeadingRow, SkipsUnknownSheets
 {
     private $errors = [];
     private $successCount = 0;
     private $rowNumber = 0;
+
+    /**
+     * Hanya import sheet pertama, skip sheet referensi
+     */
+    public function onUnknownSheet($sheetName)
+    {
+        // Skip sheet referensi tanpa error
+    }
 
     /**
      * Map Excel row ke Siswa Model
@@ -23,8 +30,30 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation
         $this->rowNumber++;
 
         try {
+            // Validasi field wajib
+            $nis = trim(strval($row['nis'] ?? ''));
+            $namaSiswa = trim(strval($row['nama_siswa'] ?? ''));
+            $kelasNama = trim(strval($row['kelas'] ?? ''));
+
+            // Skip baris yang sepenuhnya kosong
+            if (empty($nis) && empty($namaSiswa) && empty($kelasNama)) {
+                return null;
+            }
+
+            if (empty($nis)) {
+                $this->errors[] = ['row' => $this->rowNumber, 'nis' => null, 'message' => 'NIS harus diisi'];
+                return null;
+            }
+            if (empty($namaSiswa)) {
+                $this->errors[] = ['row' => $this->rowNumber, 'nis' => $nis, 'message' => 'Nama siswa harus diisi'];
+                return null;
+            }
+            if (empty($kelasNama)) {
+                $this->errors[] = ['row' => $this->rowNumber, 'nis' => $nis, 'message' => 'Kelas harus diisi'];
+                return null;
+            }
+
             // Validasi kelas ada (case-insensitive, trimmed)
-            $kelasNama = trim($row['kelas'] ?? '');
             $kelas = Kelas::whereRaw('LOWER(nama_kelas) = ?', [strtolower($kelasNama)])->first();
             if (!$kelas) {
                 $available = Kelas::pluck('nama_kelas')->implode(', ');
@@ -37,11 +66,11 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation
             }
 
             // Check jika siswa sudah ada (by NIS)
-            $existingSiswa = Siswa::where('nis', $row['nis'])->first();
+            $existingSiswa = Siswa::where('nis', $nis)->first();
             if ($existingSiswa) {
                 // Update jika sudah ada
                 $existingSiswa->update([
-                    'nama_siswa' => $row['nama_siswa'],
+                    'nama_siswa' => $namaSiswa,
                     'kelas_id' => $kelas->id,
                 ]);
                 $this->successCount++;
@@ -51,8 +80,8 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation
             // Create siswa baru
             $this->successCount++;
             return new Siswa([
-                'nis' => $row['nis'],
-                'nama_siswa' => $row['nama_siswa'],
+                'nis' => $nis,
+                'nama_siswa' => $namaSiswa,
                 'kelas_id' => $kelas->id,
             ]);
         } catch (\Exception $e) {
@@ -63,35 +92,6 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation
             ];
             return null;
         }
-    }
-
-    /**
-     * Validasi rules untuk setiap baris
-     */
-    public function rules(): array
-    {
-        return [
-            '*.nis' => [
-                'required',
-                'numeric',
-            ],
-            '*.nama_siswa' => 'required|string|max:100',
-            '*.kelas' => 'required|string|max:50',
-        ];
-    }
-
-    /**
-     * Custom error messages
-     */
-    public function customValidationMessages()
-    {
-        return [
-            '*.nis.required' => 'NIS harus diisi',
-            '*.nis.numeric' => 'NIS harus angka',
-            '*.nama_siswa.required' => 'Nama siswa harus diisi',
-            '*.nama_siswa.max' => 'Nama siswa maksimal 100 karakter',
-            '*.kelas.required' => 'Kelas harus diisi',
-        ];
     }
 
     /**
