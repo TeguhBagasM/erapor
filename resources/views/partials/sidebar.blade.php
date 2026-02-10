@@ -1,0 +1,123 @@
+{{-- Sidebar --}}
+<aside class="sidebar" id="sidebar">
+    {{-- Brand --}}
+    <div class="sidebar-brand">
+        <i class="fas fa-graduation-cap me-2" style="color:#4e73df;font-size:1.1rem;"></i>
+        <h5>e-Rapor</h5>
+    </div>
+
+    <ul class="sidebar-nav">
+
+        @if(auth()->user()->role && auth()->user()->role->name === 'admin')
+            {{-- ═══════════════════════════ ADMIN MENU ═══════════════════════════ --}}
+
+            <li class="sidebar-item">
+                <a href="{{ route('admin.dashboard') }}"
+                   class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+
+            <li class="sidebar-heading">Master Data</li>
+
+            <li class="sidebar-item">
+                <a href="{{ route('admin.users.index') }}"
+                   class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <i class="fas fa-users"></i> User
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.guru.index') }}"
+                   class="sidebar-link {{ request()->routeIs('admin.guru.*') ? 'active' : '' }}">
+                    <i class="fas fa-chalkboard-teacher"></i> Guru
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.siswa.index') }}"
+                   class="sidebar-link {{ request()->routeIs('admin.siswa.*') ? 'active' : '' }}">
+                    <i class="fas fa-user-graduate"></i> Siswa
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.kelas.index') }}"
+                   class="sidebar-link {{ request()->routeIs('admin.kelas.*') ? 'active' : '' }}">
+                    <i class="fas fa-door-open"></i> Kelas
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.jurusans.index') }}"
+                   class="sidebar-link {{ request()->routeIs('admin.jurusans.*') ? 'active' : '' }}">
+                    <i class="fas fa-layer-group"></i> Jurusan
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.mata-pelajaran.index') }}"
+                   class="sidebar-link {{ request()->routeIs('admin.mata-pelajaran.*') ? 'active' : '' }}">
+                    <i class="fas fa-book"></i> Mata Pelajaran
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.tahun-ajaran.index') }}"
+                   class="sidebar-link {{ request()->routeIs('admin.tahun-ajaran.*') ? 'active' : '' }}">
+                    <i class="fas fa-calendar-alt"></i> Tahun Ajaran
+                </a>
+            </li>
+
+            <li class="sidebar-heading">Akademik</li>
+
+            <li class="sidebar-item">
+                <a href="{{ route('admin.nilai.create') }}"
+                   class="sidebar-link {{ request()->routeIs('admin.nilai.*') ? 'active' : '' }}">
+                    <i class="fas fa-pen-alt"></i> Input Nilai
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('admin.import.form') }}"
+                   class="sidebar-link {{ request()->routeIs('admin.import.*') ? 'active' : '' }}">
+                    <i class="fas fa-file-import"></i> Import Data
+                </a>
+            </li>
+
+        @elseif(auth()->user()->role && auth()->user()->role->name === 'wali_kelas')
+            {{-- ═══════════════════════ WALI KELAS MENU ════════════════════════ --}}
+
+            <li class="sidebar-item">
+                <a href="{{ route('wali_kelas.dashboard') }}"
+                   class="sidebar-link {{ request()->routeIs('wali_kelas.dashboard') ? 'active' : '' }}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+
+            <li class="sidebar-heading">Akademik</li>
+
+            <li class="sidebar-item">
+                <a href="{{ route('wali_kelas.nilai.index') }}"
+                   class="sidebar-link {{ request()->routeIs('wali_kelas.nilai.*') ? 'active' : '' }}">
+                    <i class="fas fa-pen-alt"></i> Input Nilai
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('wali_kelas.rapor.list') }}"
+                   class="sidebar-link {{ request()->routeIs('wali_kelas.rapor.*') ? 'active' : '' }}">
+                    <i class="fas fa-file-alt"></i> Rekap Nilai
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="{{ route('wali_kelas.statistik') }}"
+                   class="sidebar-link {{ request()->routeIs('wali_kelas.statistik') ? 'active' : '' }}">
+                    <i class="fas fa-chart-bar"></i> Statistik Kelas
+                </a>
+            </li>
+
+        @endif
+
+        {{-- Logout (semua role) --}}
+        <li class="sidebar-heading mt-3">Akun</li>
+        <li class="sidebar-item">
+            <a href="{{ route('logout') }}" class="sidebar-link"
+               onclick="event.preventDefault();document.getElementById('logout-form').submit();">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </li>
+    </ul>
+</aside>
