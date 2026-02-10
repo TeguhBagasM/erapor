@@ -35,7 +35,7 @@ class KelasController extends Controller
     {
         try {
             Kelas::create($request->validated());
-            return redirect()->route('kelas.index')->with('success', 'Kelas berhasil ditambahkan');
+            return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil ditambahkan');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menambahkan kelas: ' . $e->getMessage());
         }
@@ -60,7 +60,7 @@ class KelasController extends Controller
     {
         try {
             $kelas->update($request->validated());
-            return redirect()->route('kelas.index')->with('success', 'Kelas berhasil diubah');
+            return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil diubah');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal mengubah kelas: ' . $e->getMessage());
         }
@@ -70,7 +70,7 @@ class KelasController extends Controller
     {
         try {
             $kelas->delete();
-            return redirect()->route('kelas.index')->with('success', 'Kelas berhasil dihapus');
+            return redirect()->route('admin.kelas.index')->with('success', 'Kelas berhasil dihapus');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menghapus kelas: ' . $e->getMessage());
         }

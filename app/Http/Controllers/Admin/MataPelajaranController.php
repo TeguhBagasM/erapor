@@ -29,7 +29,7 @@ class MataPelajaranController extends Controller
     {
         try {
             MataPelajaran::create($request->validated());
-            return redirect()->route('mata-pelajaran.index')->with('success', 'Mata pelajaran berhasil ditambahkan');
+            return redirect()->route('admin.mata-pelajaran.index')->with('success', 'Mata pelajaran berhasil ditambahkan');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menambahkan mata pelajaran: ' . $e->getMessage());
         }
@@ -49,7 +49,7 @@ class MataPelajaranController extends Controller
     {
         try {
             $mataPelajaran->update($request->validated());
-            return redirect()->route('mata-pelajaran.index')->with('success', 'Mata pelajaran berhasil diubah');
+            return redirect()->route('admin.mata-pelajaran.index')->with('success', 'Mata pelajaran berhasil diubah');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal mengubah mata pelajaran: ' . $e->getMessage());
         }
@@ -59,7 +59,7 @@ class MataPelajaranController extends Controller
     {
         try {
             $mataPelajaran->delete();
-            return redirect()->route('mata-pelajaran.index')->with('success', 'Mata pelajaran berhasil dihapus');
+            return redirect()->route('admin.mata-pelajaran.index')->with('success', 'Mata pelajaran berhasil dihapus');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menghapus mata pelajaran: ' . $e->getMessage());
         }

@@ -31,7 +31,7 @@ class SiswaController extends Controller
     {
         try {
             Siswa::create($request->validated());
-            return redirect()->route('siswa.index')->with('success', 'Siswa berhasil ditambahkan');
+            return redirect()->route('admin.siswa.index')->with('success', 'Siswa berhasil ditambahkan');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menambahkan siswa: ' . $e->getMessage());
         }
@@ -53,7 +53,7 @@ class SiswaController extends Controller
     {
         try {
             $siswa->update($request->validated());
-            return redirect()->route('siswa.index')->with('success', 'Siswa berhasil diubah');
+            return redirect()->route('admin.siswa.index')->with('success', 'Siswa berhasil diubah');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal mengubah siswa: ' . $e->getMessage());
         }
@@ -63,7 +63,7 @@ class SiswaController extends Controller
     {
         try {
             $siswa->delete();
-            return redirect()->route('siswa.index')->with('success', 'Siswa berhasil dihapus');
+            return redirect()->route('admin.siswa.index')->with('success', 'Siswa berhasil dihapus');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menghapus siswa: ' . $e->getMessage());
         }

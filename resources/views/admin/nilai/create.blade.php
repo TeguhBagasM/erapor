@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const alertMessage = document.getElementById('alertMessage');
 
     function getHuruf(angka) {
-        if (angka >= 85) return 'A';
+        if (angka >= 80) return 'A';
         if (angka >= 70) return 'B';
         if (angka >= 60) return 'C';
         if (angka >= 50) return 'D';
@@ -198,8 +198,14 @@ document.addEventListener('DOMContentLoaded', function() {
         // Auto-calculate huruf
         nilaiBody.querySelectorAll('.nilai-input').forEach(function(input) {
             input.addEventListener('input', function() {
+                // Paksa batas 0-100
+                let val = parseInt(this.value);
+                if (!isNaN(val)) {
+                    if (val > 100) { this.value = 100; val = 100; }
+                    if (val < 0) { this.value = 0; val = 0; }
+                }
+
                 const hurufCell = this.closest('tr').querySelector('.nilai-huruf');
-                const val = parseInt(this.value);
                 if (!isNaN(val) && val >= 0 && val <= 100) {
                     hurufCell.textContent = getHuruf(val);
                     hurufCell.classList.remove('text-muted');

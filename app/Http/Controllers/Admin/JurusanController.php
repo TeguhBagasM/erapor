@@ -29,7 +29,7 @@ class JurusanController extends Controller
     {
         try {
             Jurusan::create($request->validated());
-            return redirect()->route('jurusans.index')->with('success', 'Jurusan berhasil ditambahkan');
+            return redirect()->route('admin.jurusans.index')->with('success', 'Jurusan berhasil ditambahkan');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menambahkan jurusan: ' . $e->getMessage());
         }
@@ -49,7 +49,7 @@ class JurusanController extends Controller
     {
         try {
             $jurusan->update($request->validated());
-            return redirect()->route('jurusans.index')->with('success', 'Jurusan berhasil diubah');
+            return redirect()->route('admin.jurusans.index')->with('success', 'Jurusan berhasil diubah');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal mengubah jurusan: ' . $e->getMessage());
         }
@@ -59,7 +59,7 @@ class JurusanController extends Controller
     {
         try {
             $jurusan->delete();
-            return redirect()->route('jurusans.index')->with('success', 'Jurusan berhasil dihapus');
+            return redirect()->route('admin.jurusans.index')->with('success', 'Jurusan berhasil dihapus');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menghapus jurusan: ' . $e->getMessage());
         }
